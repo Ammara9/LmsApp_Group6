@@ -70,7 +70,7 @@ public static class SeedData
         var users = faker.Generate(nrOfUsers);
 
         //ToDo: Add to user.secrets
-        var passWord = "Abc_123";
+        var passWord = "BytMig123!";
         if (string.IsNullOrEmpty(passWord))
             throw new Exception("password not found");
 
