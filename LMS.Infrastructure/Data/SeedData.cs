@@ -33,6 +33,7 @@ public static class SeedData
             try
             {
                 await CreateRolesAsync([adminRole]);
+                await GenerateAdminAsync();
                 await GenerateUsersAsync(5);
                 await db.SaveChangesAsync();
             }
@@ -49,7 +50,7 @@ public static class SeedData
         {
             if (await roleManager.RoleExistsAsync(roleName))
                 continue;
-            var role = new IdentityRole { Name = roleName };
+            var role = new IdentityRole {Name = roleName};
             var result = await roleManager.CreateAsync(role);
 
             if (!result.Succeeded)
@@ -80,5 +81,18 @@ public static class SeedData
             if (!result.Succeeded)
                 throw new Exception(string.Join("\n", result.Errors));
         }
+    }
+
+    private static async Task GenerateAdminAsync()
+    {
+        var adminUser = new ApplicationUser() {UserName = "Admin", Email = "teacher@madeup.domain"};
+
+        //ToDo: Add to user.secrets
+        var passWord = "1Hemligt!";
+
+        var result = await userManager.CreateAsync(adminUser, passWord);
+        var result2 = await userManager.AddToRoleAsync(adminUser, "admin");
+        if (!result.Succeeded || !result2.Succeeded)
+            throw new Exception(string.Join("\n", result.Errors, result2.Errors));
     }
 }
