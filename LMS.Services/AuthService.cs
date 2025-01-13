@@ -97,10 +97,20 @@ public class AuthService : IAuthService
         {
             throw new ArgumentNullException(nameof(registrationDto));
         }
+        if (user == null)
+        {
+            throw new UnauthorizedAccessException("User is not authenticated.");
+        }
 
-        var user = mapper.Map<ApplicationUser>(registrationDto);
+        // Check if the user is in the "admin" role
+        var isAdmin = await userManager.IsInRoleAsync(user, "admin");
+        if (!isAdmin)
+        {
+            throw new UnauthorizedAccessException("User is not authorized to register new users.");
+        }
+        var newUser = mapper.Map<ApplicationUser>(registrationDto);
 
-        var result = await userManager.CreateAsync(user, registrationDto.Password!);
+        var result = await userManager.CreateAsync(newUser, registrationDto.Password!);
 
         return result;
     }

@@ -18,6 +18,12 @@
 <PageTitle>Register</PageTitle>
 
 <h1>Register</h1>
+<AuthorizeView Roles="Admin">
+    <NotAuthorized>
+        <RedirectToLogin/>
+    </NotAuthorized>
+</AuthorizeView>
+
 
 <div class="row">
     <div class="col-md-4">
