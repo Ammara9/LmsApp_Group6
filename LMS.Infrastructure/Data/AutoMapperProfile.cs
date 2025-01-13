@@ -8,5 +8,6 @@ public class AutoMapperProfile : Profile
     public AutoMapperProfile()
     {
         CreateMap<UserForRegistrationDto, ApplicationUser>();
+        CreateMap<Course, CourseDto>().ReverseMap();
     }
 }

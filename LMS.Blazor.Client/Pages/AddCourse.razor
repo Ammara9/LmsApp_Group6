@@ -1,0 +1,73 @@
+﻿@page "/addcourse"
+@using System.Net.Http.Json
+@inject HttpClient Http
+
+<h3>Create New Course</h3>
+
+<EditForm Model="course" method="post" OnValidSubmit="HandleSubmit" FormName="AddCourseForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-3">
+        <label for="name" class="form-label">Course Name</label>
+        <InputText id="name" class="form-control" @bind-Value="course.Name" />
+        <ValidationMessage For="()=>course.Name" />
+
+    </div>
+
+    <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <InputTextArea id="description" class="form-control" @bind-Value="course.Description" />
+        <ValidationMessage For="()=>course.Description" />
+
+    </div>
+
+    <div class="mb-3">
+        <label for="startDate" class="form-label">Start Date</label>
+        <InputDate id="startDate" class="form-control" @bind-Value="course.StartDate" />
+        <ValidationMessage For="()=>course.StartDate" />
+
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Course</button>
+</EditForm>
+
+@code {
+    [SupplyParameterFromForm]
+    private Course course { get; set; } = new();
+
+    public async Task HandleSubmit()
+    {
+        try
+        {
+            
+            var response = await Http.PostAsJsonAsync("api/courses", course);
+
+            if (response.IsSuccessStatusCode)
+            {
+                // Optionally reset the form or provide feedback
+                course = new Course();
+                Console.WriteLine("Course created successfully.");
+            }
+            else
+            {
+                // Handle error response
+                var errorMessage = await response.Content.ReadAsStringAsync();
+                Console.Error.WriteLine($"Error: {response.StatusCode}, {errorMessage}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"An error occurred: {ex.Message}");
+        }
+    }
+
+    public partial class Course
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; } = DateTime.Today;
+    }
+}
+

@@ -1,13 +1,63 @@
-﻿@page "/course"
+﻿@page "/courses"
+@using System.Net.Http.Json
+@inject HttpClient Http
 
-@using LMS.Blazor.Client.Services
-@using LMS.Shared.DTOs
-@using Microsoft.AspNetCore.Authorization
-@using Microsoft.AspNetCore.Components.Authorization
+<h3>Courses</h3>
 
-@attribute [Authorize]
+@if (courses == null)
+{
+    <p>Loading courses...</p>
+}
+else if (!courses.Any())
+{
+    <p>No courses available.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Start Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in courses)
+            {
+                <tr>
+                    <td>@course.Id</td>
+                    <td>@course.Name</td>
+                    <td>@course.Description</td>
+                    <td>@course.StartDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
 
-<h3>Course</h3>
 @code {
+    private List<CourseModel>? courses;
 
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // Fetch courses using relative API path
+            courses = await Http.GetFromJsonAsync<List<CourseModel>>("api/courses");
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading courses: {ex.Message}");
+        }
+    }
+
+    public class CourseModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
+    }
 }
