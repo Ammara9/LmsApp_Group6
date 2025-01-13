@@ -1,6 +1,6 @@
 [
   {
-    "Name": "New Profile",
+    "Name": "BlazorAndAPI",
     "Projects": [
       {
         "Path": "LMS.API\\LMS.API.csproj",
