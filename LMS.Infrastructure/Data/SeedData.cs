@@ -30,11 +30,18 @@ public static class SeedData
                 serviceProvider.GetRequiredService<RoleManager<IdentityRole>>()
                 ?? throw new ArgumentNullException(nameof(roleManager));
 
+            var roleNames = new[] { "Admin", "Teacher", "Student" };
+
             try
             {
-                await CreateRolesAsync([adminRole]);
-                await GenerateAdminAsync();
+                await CreateRolesAsync(roleNames);
+
+                var adminUser = await GenerateAdminAsync("Admin", "lms_admin@madeup.domain", "1Hemligt!", roleNames[0]);
+                var teacherUser = await GenerateAdminAsync("Teacher", "lms_teacher@madeup.domain", "Pwteacher@11", roleNames[1]);
+                var studentUser = await GenerateAdminAsync("Student", "lms_student@madeup.domain", "Pwstudent@22", roleNames[2]);
+
                 await GenerateUsersAsync(5);
+
                 await db.SaveChangesAsync();
             }
             catch (Exception)
@@ -83,16 +90,40 @@ public static class SeedData
         }
     }
 
-    private static async Task GenerateAdminAsync()
+    private static async Task<ApplicationUser> GenerateAdminAsync(string userName, string emailId, string passWord, string roleName)
     {
-        var adminUser = new ApplicationUser() {UserName = "Admin", Email = "teacher@madeup.domain"};
 
         //ToDo: Add to user.secrets
-        var passWord = "1Hemligt!";
+        //var passWord = "1Hemligt!";
+        var found = await userManager.FindByEmailAsync(emailId);
 
-        var result = await userManager.CreateAsync(adminUser, passWord);
-        var result2 = await userManager.AddToRoleAsync(adminUser, "admin");
+        if (found != null) return null!;
+
+        if (string.IsNullOrEmpty(passWord))
+            throw new Exception("password not found");
+
+        var applicationUser = new ApplicationUser
+        {
+            UserName = userName,
+            Email = emailId,
+            PasswordHash = passWord
+        };
+
+        var result = await userManager.CreateAsync(applicationUser, passWord);
+        var result2 = await userManager.AddToRoleAsync(applicationUser, roleName);
         if (!result.Succeeded || !result2.Succeeded)
             throw new Exception(string.Join("\n", result.Errors, result2.Errors));
+
+        return applicationUser;
+    }
+
+    private static async Task AddUserToRoleAsync(ApplicationUser user, string roleName)
+    {
+        if (!await userManager.IsInRoleAsync(user, roleName))
+        {
+            var result = await userManager.AddToRoleAsync(user, roleName);
+            if (!result.Succeeded) throw new Exception(string.Join("\n", result.Errors));
+
+        }
     }
 }
