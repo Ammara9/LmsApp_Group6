@@ -27,6 +27,6 @@ builder.Services.AddOptions();
 builder.Services.AddAuthorizationCore();
 
 //course services register
-//builder.Services.AddScoped<CourseServices>();
+builder.Services.AddScoped<CourseServices>();
 
 await builder.Build().RunAsync();

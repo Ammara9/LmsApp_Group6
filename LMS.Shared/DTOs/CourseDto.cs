@@ -8,9 +8,9 @@ namespace LMS.Shared.DTOs
 {
     public class CourseDto
     {
-        //public int Id { get; init; }
-        //public string CourseName { get; init; } = string.Empty;
-        //public string CourseDescription { get; init; } = string.Empty;
-        //public DateTime StartDate { get; init; }
+        public int Id { get; set; }
+        public string CourseName { get; set; } = string.Empty;
+        public string CourseDescription { get; set; } = string.Empty;
+        public DateTime StartDate { get; set; }
     }
 }

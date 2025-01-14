@@ -1,12 +1,10 @@
+using System.Security.Claims;
 using Domain.Models.Entities;
 using LMS.API.Extensions;
 using LMS.Infrastructure.Data;
 using LMS.Presemtation;
-
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
-
 
 namespace LMS.API;
 
@@ -18,14 +16,21 @@ public class Program
 
         // Add services to the container.
         builder.Services.AddDbContext<LmsContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("LmsContext") ?? throw new InvalidOperationException("Connection string 'CompaniesContext' not found.")));
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("LmsContext")
+                    ?? throw new InvalidOperationException(
+                        "Connection string 'CompaniesContext' not found."
+                    )
+            )
+        );
 
-        builder.Services.AddControllers(configure =>
-        {
-            configure.ReturnHttpNotAcceptable = true;
-        })
-                        .AddNewtonsoftJson()
-                        .AddApplicationPart(typeof(AssemblyReference).Assembly);
+        builder
+            .Services.AddControllers(configure =>
+            {
+                configure.ReturnHttpNotAcceptable = true;
+            })
+            .AddNewtonsoftJson()
+            .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
         builder.Services.ConfigureOpenApi();
         builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
@@ -34,16 +39,19 @@ public class Program
         builder.Services.ConfigureJwt(builder.Configuration);
         builder.Services.ConfigureCors();
 
-        builder.Services.AddIdentityCore<ApplicationUser>(opt =>
+        builder
+            .Services.AddIdentityCore<ApplicationUser>(opt =>
             {
                 opt.SignIn.RequireConfirmedAccount = false;
                 opt.User.RequireUniqueEmail = true;
             })
-                .AddRoles<IdentityRole>()
-                .AddEntityFrameworkStores<LmsContext>()
-                .AddDefaultTokenProviders();
+            .AddRoles<IdentityRole>()
+            .AddEntityFrameworkStores<LmsContext>()
+            .AddDefaultTokenProviders();
 
-        builder.Services.Configure<PasswordHasherOptions>(options => options.IterationCount = 10000);
+        builder.Services.Configure<PasswordHasherOptions>(options =>
+            options.IterationCount = 10000
+        );
 
         var app = builder.Build();
 
@@ -58,6 +66,8 @@ public class Program
         app.UseHttpsRedirection();
 
         app.UseCors("AllowAll");
+
+        app.UseRouting();
 
         app.UseAuthentication();
         app.UseAuthorization();

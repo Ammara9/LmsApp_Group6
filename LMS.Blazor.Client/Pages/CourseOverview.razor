@@ -1,6 +1,16 @@
 ﻿@page "/courses"
+@rendermode InteractiveWebAssembly
+
+@using Domain.Models.Entities
 @using System.Net.Http.Json
+
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+
 @inject HttpClient Http
+
 
 <h3>Courses</h3>
 
@@ -24,13 +34,13 @@ else
             </tr>
         </thead>
         <tbody>
-            @foreach (var course in courses)
+            @foreach (var item in courses)
             {
                 <tr>
-                    <td>@course.Id</td>
-                    <td>@course.Name</td>
-                    <td>@course.Description</td>
-                    <td>@course.StartDate.ToString("yyyy-MM-dd")</td>
+                    <td>@item.Id</td>
+                    <td>@item.CourseName</td>
+                    <td>@item.CourseDescription</td>
+                    <td>@item.StartDate.ToString("yyyy-MM-dd")</td>
                 </tr>
             }
         </tbody>
@@ -38,26 +48,25 @@ else
 }
 
 @code {
-    private List<CourseModel>? courses;
+    private List<CourseDto>? courses;
+
 
     protected override async Task OnInitializedAsync()
     {
         try
         {
             // Fetch courses using relative API path
-            courses = await Http.GetFromJsonAsync<List<CourseModel>>("api/courses");
+            courses = await Http.GetFromJsonAsync<List<CourseDto>>("api/courses");
+
+            // Check if courses is null
+            if (courses == null)
+            {
+                Console.Error.WriteLine("No courses returned from the API.");
+            }
         }
         catch (Exception ex)
         {
             Console.Error.WriteLine($"Error loading courses: {ex.Message}");
         }
-    }
-
-    public class CourseModel
-    {
-        public int Id { get; set; }
-        public string Name { get; set; } = string.Empty;
-        public string Description { get; set; } = string.Empty;
-        public DateTime StartDate { get; set; }
     }
 }

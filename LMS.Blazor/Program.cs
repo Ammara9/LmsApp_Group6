@@ -4,7 +4,6 @@ using LMS.Blazor.Components;
 using LMS.Blazor.Components.Account;
 using LMS.Blazor.Data;
 using LMS.Blazor.Services;
-
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -12,7 +11,8 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddRazorComponents()
+builder
+    .Services.AddRazorComponents()
     .AddInteractiveServerComponents()
     .AddInteractiveWebAssemblyComponents();
 
@@ -24,28 +24,35 @@ builder.Services.AddScoped<IdentityUserAccessor>();
 
 builder.Services.AddScoped<IdentityRedirectManager>();
 
-builder.Services.AddScoped<AuthenticationStateProvider,
-    PersistingRevalidatingAuthenticationStateProvider>();
+builder.Services.AddScoped<
+    AuthenticationStateProvider,
+    PersistingRevalidatingAuthenticationStateProvider
+>();
 
 builder.Services.AddScoped<IApiService, ClientApiService>();
 
-builder.Services.AddAuthentication(options =>
-{
-    options.DefaultScheme = IdentityConstants.ApplicationScheme;
-    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-})
-.AddIdentityCookies();
+builder
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = IdentityConstants.ApplicationScheme;
+        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    })
+    .AddIdentityCookies();
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString)
+);
 
-builder.Services.AddIdentityCore<ApplicationUser>(options =>
-{
-    options.SignIn.RequireConfirmedAccount = false;
-    options.User.RequireUniqueEmail = true;
-})
+builder
+    .Services.AddIdentityCore<ApplicationUser>(options =>
+    {
+        options.SignIn.RequireConfirmedAccount = false;
+        options.User.RequireUniqueEmail = true;
+    })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ApplicationDbContext>()
     .AddSignInManager()
@@ -53,16 +60,22 @@ builder.Services.AddIdentityCore<ApplicationUser>(options =>
 
 builder.Services.AddSingleton<IEmailSender<ApplicationUser>, IdentityNoOpEmailSender>();
 
-builder.Services.AddHttpClient("LmsAPIClient", cfg =>
-     {
-         cfg.BaseAddress = new Uri(
-            builder.Configuration["LmsAPIBaseAddress"] ??
-                throw new Exception("LmsAPIBaseAddress is missing."));
-     });
+builder.Services.AddHttpClient(
+    "LmsAPIClient",
+    cfg =>
+    {
+        cfg.BaseAddress = new Uri(
+            builder.Configuration["LmsAPIBaseAddress"]
+                ?? throw new Exception("LmsAPIBaseAddress is missing.")
+        );
+    }
+);
 
 builder.Services.Configure<PasswordHasherOptions>(options => options.IterationCount = 10000);
 
 builder.Services.AddSingleton<ITokenStorage, TokenStorageService>();
+
+builder.Services.AddScoped<CourseServices>();
 
 var app = builder.Build();
 
@@ -90,6 +103,9 @@ app.MapRazorComponents<App>()
 
 app.MapControllers();
 
-app.MapAdditionalIdentityEndpoints(); ;
+app.MapAdditionalIdentityEndpoints();
+;
+
+app.MapRazorComponents<App>();
 
 app.Run();

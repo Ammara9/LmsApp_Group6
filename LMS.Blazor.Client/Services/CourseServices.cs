@@ -3,6 +3,7 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Domain.Models.Entities;
+using LMS.Shared.DTOs;
 
 namespace LMS.Blazor.Client.Services
 {
@@ -25,8 +26,16 @@ namespace LMS.Blazor.Client.Services
             return await _httpClient.GetFromJsonAsync<Course>($"api/courses/{id}");
         }
 
-        public async Task AddCourseAsync(Course course)
+        public async Task AddCourseAsync(CourseDto courseDto)
         {
+            // Map CourseDto to Course domain model
+            var course = new Course
+            {
+                CourseName = courseDto.CourseName,
+                CourseDescription = courseDto.CourseDescription,
+                StartDate = courseDto.StartDate,
+            };
+
             await _httpClient.PostAsJsonAsync("api/courses", course);
         }
 
