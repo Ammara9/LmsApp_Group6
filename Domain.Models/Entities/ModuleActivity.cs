@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Domain.Models.Entities
 {
-    public class Activities
+    public class ModuleActivity
     {
         public int Id { get; set; } //primär nyckel
         public int ModuleId { get; set; } //FK

@@ -25,7 +25,7 @@ namespace Domain.Models.Entities
         public ApplicationUser? User { get; set; }
         public Course? Course { get; set; }
         public Module? Module { get; set; }
-        public Activities? Activity { get; set; }
+        public ModuleActivity? Activity { get; set; }
 
     }
 }
