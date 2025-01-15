@@ -1,7 +1,11 @@
 ﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using AutoMapper;
+using Bogus.DataSets;
+using Domain.Contracts;
 using Domain.Models.Entities;
 using LMS.Infrastructure.Data;
+using LMS.Shared.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -13,6 +17,16 @@ namespace LMS.Presemtation.Controllers
     {
         private static List<Course> courses = new List<Course>();
         private static int nextId = 1;
+
+        private readonly LmsContext dbContext;
+
+        private readonly IMapper _mapper;
+
+        public CoursesController(LmsContext context, IMapper mapper)
+        {
+            dbContext = context;
+            _mapper = mapper;
+        }
 
         [HttpPost]
         public IActionResult AddCourse([FromBody] Course newCourse)
@@ -39,10 +53,19 @@ namespace LMS.Presemtation.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetAllCourses()
+        public async Task<ActionResult<IEnumerable<CourseDto>>> GetAllCourses()
         {
+            var courses = await dbContext.Courses.ToListAsync();
+
+            if (courses == null)
+            {
+                return NotFound(new { Message = $"Courses not found." });
+            }
+
+            var coursesDtos = _mapper.Map<IEnumerable<CourseDto>>(courses);
+
             // Return all courses
-            return Ok(courses);
+            return Ok(coursesDtos);
         }
     }
 }

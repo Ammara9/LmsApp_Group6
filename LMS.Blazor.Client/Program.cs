@@ -11,7 +11,7 @@ builder.Services.AddHttpClient(
     "BffClient",
     cfg =>
     {
-        cfg.BaseAddress = new Uri("https://localhost:7224/");
+        cfg.BaseAddress = new Uri("https://localhost:7044/");
     }
 );
 

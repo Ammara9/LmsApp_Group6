@@ -1,0 +1,96 @@
+﻿@page "/courses"
+@using System.Net.Http.Json
+@using System.Text.Json
+@using LMS.Blazor.Client.Services
+@using LMS.Shared.DTOs
+@inject HttpClient Http
+@inject IHttpClientFactory HttpClientFactory
+
+<h3>Courses</h3>
+
+@if (courses == null)
+{
+    <p>Loading courses...</p>
+}
+else if (!courses.Any())
+{
+    <p>No courses available.</p>
+}
+else
+{
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Start Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var course in courses)
+            {
+                <tr>
+                    <td>@course.Id</td>
+                    <td>@course.Name</td>
+                    <td>@course.Description</td>
+                    <td>@course.StartDate.ToString("yyyy-MM-dd")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<CourseModel>? courses;
+    //private HttpClient _httpClient;
+    [Inject]
+    private IApiService _apiService { get; set; } = default!;
+    private List<CourseDto>? demo;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            //_httpClient = HttpClientFactory.CreateClient("BffClient");
+            //_httpClient.BaseAddress = new Uri("https://localhost:7044/");
+
+            //Console.WriteLine($"{_httpClient.BaseAddress}api/courses");
+
+            demo = (await _apiService.CallApiAsync<IEnumerable<CourseDto>>("api/courses"))?.ToList() ?? [];
+        
+
+            // Fetch courses using relative API path
+           //var coursesDtos = await _httpClient.GetFromJsonAsync<IEnumerable<CourseDto>>("api/courses");
+
+            if (demo != null)
+            {
+                foreach (var course in demo)
+                {
+                    courses = demo.Select(course => new CourseModel
+                        {
+                            Id = course.Id,
+                            Name = course.CourseName,
+                            Description = course.CourseDescription,
+                            StartDate = course.StartDate
+                        }).ToList();
+                }
+            }
+            
+
+        }
+        catch (Exception ex)
+        {
+            Console.Error.WriteLine($"Error loading courses: {ex.Message}");
+        }
+    }
+
+    public class CourseModel
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } 
+        public string Description { get; set; }
+        public DateTime StartDate { get; set; }
+    }
+}

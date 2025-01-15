@@ -28,7 +28,9 @@ public class Program
                         .AddApplicationPart(typeof(AssemblyReference).Assembly);
 
         builder.Services.ConfigureOpenApi();
+        builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
         builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
+        
         builder.Services.ConfigureServiceLayerServices();
         builder.Services.ConfigureRepositories();
         builder.Services.ConfigureJwt(builder.Configuration);
@@ -57,7 +59,11 @@ public class Program
 
         app.UseHttpsRedirection();
 
-        app.UseCors("AllowAll");
+        //app.UseCors("AllowAll");
+        app.UseCors(builder =>
+            builder.WithOrigins("https://localhost:7224")
+           .AllowAnyMethod()
+           .AllowAnyHeader());  
 
         app.UseAuthentication();
         app.UseAuthorization();

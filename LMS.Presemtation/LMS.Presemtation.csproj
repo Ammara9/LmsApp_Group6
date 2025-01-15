@@ -18,6 +18,8 @@
   <ItemGroup>
     <ProjectReference Include="..\Domain.Contracts\Domain.Contracts.csproj" />
     <ProjectReference Include="..\Domain.Models\Domain.Models.csproj" />
+    <ProjectReference Include="..\LMS.Blazor.Client\LMS.Blazor.Client.csproj" />
+    <ProjectReference Include="..\LMS.Blazor\LMS.Blazor.csproj" />
     <ProjectReference Include="..\LMS.Infrastructure\LMS.Infrastructure.csproj" />
     <ProjectReference Include="..\LMS.Shared\LMS.Shared.csproj" />
     <ProjectReference Include="..\Services.Contracts\Services.Contracts.csproj" />
